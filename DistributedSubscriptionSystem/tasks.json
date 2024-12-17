@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile Protobuf for Java",
+            "type": "shell",
+            "command": "protoc",
+            "args": [
+                "--java_out=build/protobuf-java",
+                "protobuf/Message.proto",
+                "protobuf/Configuration.proto",
+                "protobuf/Capacity.proto",
+                "protobuf/Subscriber.proto"
+            ]
+        },
+        {
+            "label": "Compile Protobuf for Python",
+            "type": "shell",
+            "command": "protoc",
+            "args": [
+                "--python_out=build/protobuf-python",
+                "protobuf/Message.proto",
+                "protobuf/Configuration.proto",
+                "protobuf/Capacity.proto",
+                "protobuf/Subscriber.proto"
+            ]
+        }
+    ]
+}
