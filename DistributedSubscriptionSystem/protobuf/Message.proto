@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message Message {
+    string demand = 1;   // İstek türü (STRT, CPCTY, vb.)
+    string response = 2; // Yanıt türü (YEP, NOP, vb.)
+}

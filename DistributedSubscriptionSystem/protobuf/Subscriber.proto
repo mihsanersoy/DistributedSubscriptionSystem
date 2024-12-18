@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+message Subscriber {
+    int32 ID = 1;
+    string name_surname = 2;
+    int64 start_date = 3;     // UNIX epoch
+    int64 last_accessed = 4;  // UNIX epoch
+    repeated string interests = 5;  // Abone ilgileri
+    bool isOnline = 6;        // Online durumu
+    string demand = 7;        // SUBS, DEL, UPDT, ONLN, OFFL
+}
