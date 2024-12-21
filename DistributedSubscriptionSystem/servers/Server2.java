@@ -9,9 +9,8 @@ public class Server2 {
     private static final int CLIENT_PORT = 1133;
 
     private final Map<String, String> clientData = new HashMap<>();
-    private static final String SERVER1_HOST = "localhost";
-    private static final int SERVER1_PORT = 12353;
-
+    private static final String SERVER3_HOST = "localhost";
+    private static final int SERVER3_PORT = 12354;
     public static void main(String[] args) {
         Server2 server = new Server2();
 
@@ -19,7 +18,7 @@ public class Server2 {
         new Thread(server::startAdminListener).start();
         new Thread(server::startClientListener).start();
 
-        server.connectToOtherServers();
+        server.connectToServer3();
     }
 
     public void startServerCommunication() {
@@ -58,26 +57,24 @@ public class Server2 {
         }
     }
 
-    public void connectToOtherServers() {
-        int[] otherServerPorts = {12353, 12356};
-        for (int port : otherServerPorts) {
-            try {
-                Socket socket = new Socket("localhost", port);
-                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+    public void connectToServer3() {
+        try {
+            Socket socket = new Socket(SERVER3_HOST, SERVER3_PORT);
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
-                String messageToSend = "Hello from Server2!";
-                out.writeObject(messageToSend);
-                System.out.println("Sent to Server on port: " + port + " : " + messageToSend);
+            String messageFromServer3 = (String) in.readObject();
+            System.out.println("Received from Server3: " + messageFromServer3);
 
-                String response = (String) in.readObject();
-                System.out.println("Received from Server on port " + port + ": " + response);
-
-                socket.close();
-            } catch (IOException | ClassNotFoundException e) {
-                System.out.println("Could not connect to server on port: " + port);
-                e.printStackTrace();
+            String clientAddress = socket.getInetAddress().toString();
+            synchronized (clientData) {
+                clientData.put(clientAddress, messageFromServer3);
+                System.out.println("Client data saved locally: " + clientAddress + " -> " + messageFromServer3);
             }
+
+            socket.close();
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Could not connect to Server3.");
+            e.printStackTrace();
         }
     }
 
@@ -105,31 +102,14 @@ public class Server2 {
             String message = (String) in.readObject();
             System.out.println("Received from client: " + message);
 
-
             String clientAddress = socket.getInetAddress().toString();
             synchronized (clientData) {
                 clientData.put(clientAddress, message);
                 System.out.println("Client data saved locally: " + clientAddress + " -> " + message);
             }
 
-
-            sendClientDataToServer1(clientAddress, message);
-
             out.writeObject("ACK: Message received by Server2.");
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendClientDataToServer1(String clientAddress, String message) {
-        try (Socket socket = new Socket(SERVER1_HOST, SERVER1_PORT); ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
-
-            String dataToSend = "Client from " + clientAddress + " sent: " + message;
-            out.writeObject(dataToSend);
-            System.out.println("Client data forwarded to Server1: " + dataToSend);
-
-        } catch (IOException e) {
-            System.out.println("Could not send client data to Server1.");
             e.printStackTrace();
         }
     }
