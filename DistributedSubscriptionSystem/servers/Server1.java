@@ -83,6 +83,17 @@ public class Server1 {
         try (ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
             String message = (String) in.readObject();
             System.out.println("Received from another server: " + message);
+
+            // Gelen veriyi ayıkla ve clientData'ya ekle
+            synchronized (clientData) {
+                String[] parts = message.split("->"); // Gelen veriyi "key -> value" formatında ayırıyoruz
+                if (parts.length == 2) {
+                    String clientAddress = parts[0].trim();
+                    String clientMessage = parts[1].trim();
+                    clientData.put(clientAddress, clientMessage);
+                    System.out.println("Client data updated from server: " + clientAddress + " -> " + clientMessage);
+                }
+            }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -98,13 +109,15 @@ public class Server1 {
     }
 
     private void handleClientRequest(Socket socket) {
-        try (ObjectInputStream in = new ObjectInputStream(socket.getInputStream()); ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
+        try (ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream())) {
 
             String message = (String) in.readObject();
             System.out.println("Received from client: " + message);
 
-
             String clientAddress = socket.getInetAddress().toString();
+
+            // Server1'de bilgiyi bellekte sakla
             synchronized (clientData) {
                 clientData.put(clientAddress, message);
                 System.out.println("Client data saved: " + clientAddress + " -> " + message);
@@ -116,10 +129,9 @@ public class Server1 {
         }
     }
 
-
     public void printClientData() {
         System.out.println("Current client data:");
-        synchronized (clientData) {n
+        synchronized (clientData) {
             clientData.forEach((key, value) -> System.out.println(key + " -> " + value));
         }
     }
