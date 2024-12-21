@@ -84,7 +84,6 @@ public class Server1 {
             String message = (String) in.readObject();
             System.out.println("Received from another server: " + message);
 
-            // Gelen veriyi ayıkla ve clientData'ya ekle
             synchronized (clientData) {
                 String[] parts = message.split("->"); // Gelen veriyi "key -> value" formatında ayırıyoruz
                 if (parts.length == 2) {
@@ -117,7 +116,6 @@ public class Server1 {
 
             String clientAddress = socket.getInetAddress().toString();
 
-            // Server1'de bilgiyi bellekte sakla
             synchronized (clientData) {
                 clientData.put(clientAddress, message);
                 System.out.println("Client data saved: " + clientAddress + " -> " + message);
